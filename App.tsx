@@ -14,7 +14,7 @@ const HelloWorldSceneAR = () => {
   function onInitialized(state: any, reason: ViroTrackingReason) {
     console.log("onInitialized", state, reason);
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      setText("Hello World!");
+      setText("Welcome to the world of AR");
     } else if (state === ViroTrackingStateConstants.TRACKING_UNAVAILABLE) {
       // Handle loss of tracking
     }
@@ -24,8 +24,8 @@ const HelloWorldSceneAR = () => {
     <ViroARScene onTrackingUpdated={onInitialized}>
       <ViroText
         text={text}
-        scale={[0.5, 0.5, 0.5]}
-        position={[0, 0, -1]}
+        scale={[0.2, 0.2, 0.2]}
+        position={[0, 0, -2]}
         style={styles.helloWorldTextStyle}
       />
     </ViroARScene>
@@ -48,7 +48,7 @@ var styles = StyleSheet.create({
   f1: { flex: 1 },
   helloWorldTextStyle: {
     fontFamily: "Arial",
-    fontSize: 30,
+    fontSize: 90,
     color: "#ffffff",
     textAlignVertical: "center",
     textAlign: "center",
