@@ -1,9 +1,16 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 import {
+  ViroARScene,
   ViroARSceneNavigator,
-} from '@reactvision/react-viro';
+/*   ViroMaterials,
+  ViroAnimations, */
+  Viro3DObject,
+  ViroAmbientLight,
+  ViroARTrackingTargets,
+  ViroARImageMarker,
 
+} from '@reactvision/react-viro';
 import React, { useState } from 'react';
 import {View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import InitialScene from './components/InitialScene';
