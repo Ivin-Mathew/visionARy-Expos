@@ -1,59 +1,22 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable react-native/no-inline-styles */
-import {
-  ViroARSceneNavigator,
-} from '@reactvision/react-viro';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import ViewAR from './components/ViewAR';
 
-import React, { useState } from 'react';
-import {View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import InitialScene from './components/InitialScene';
-
-
+const Stack = createNativeStackNavigator();
 
 export default () => {
-  const [clear,setClear] = useState(false);
-
-  const handleClearObjects = () =>{
-    setClear(true);
-  };
-
   return (
-    <View style={styles.mainView}>
-      <ViroARSceneNavigator
-        initialScene={{
-          scene:InitialScene,
-        }}
-        style={{flex:1}}
-        autofocus={true}
-        viroAppProps={{ clear: clear }}
-      />
-      <View style={styles.controlsView}>
-        <TouchableOpacity onPress={handleClearObjects}>
-          <Text style={styles.text}>
-            Clear objects
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="AR view"
+          component={ViewAR}
+          options={{title:'AR view'}}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
-var styles = StyleSheet.create({
-  mainView:{
-    flex:1,
-  },
-  controlsView:{
-    width:'100%',
-    height:100,
-    backgroundColor:'#ffffff',
-    display:'flex',
-    flexDirection:'row',
-    justifyContent:'space-between',
-  },
-  text:{
-    margin:20,
-    backgroundColor:'#9d9d9d',
-    padding:10,
-    fontWeight:'bold',
-  },
-});
