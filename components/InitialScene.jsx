@@ -12,14 +12,20 @@ import {
 
 const InitialScene = ({clear})=>{
   const [isMarkerDetected, setIsMarkerDetected] = useState(false);
-  const [rotation,setRotation] = useState([-170, 0, 0]);
+  const [rotation,setRotation] = useState([-90, 0, 0]);
   const [position, setPosition] = useState([0,0,-5]);
-  const [scale,setScale] = useState([0.01, 0.01, 0.01]);
+  const [scale,setScale] = useState([0.005, 0.005, 0.005]);
   const [isVisible, setIsVisible] = useState(true);
 
   ViroARTrackingTargets.createTargets({
     skullImage:{
       source:require('../assets/skull/Skull.jpg'),
+      orientation:'Up',
+      physicalWidth:0.165,
+
+    },
+    burj:{
+      source:require('../assets/marker.jpg'),
       orientation:'Up',
       physicalWidth:0.165,
 
@@ -58,11 +64,14 @@ const InitialScene = ({clear})=>{
   return (
     <ViroARScene>
       {isVisible && (
-        <ViroARImageMarker target="skullImage" onAnchorFound={anchorFound}>
+        <ViroARImageMarker target="burj" onAnchorFound={anchorFound}>
           <ViroAmbientLight color="#ffffff" />
           {isMarkerDetected && (
             <Viro3DObject
-              source={require('../assets/skull/12140_Skull_v3_L2.obj')}
+              source={require('../assets/burj/burj.obj')}
+              resources={[
+                require('../assets/burj/burj_khalifa.mtl'),
+              ]}
               scale={[scale[0], scale[1], scale[2]]}
               rotation={[rotation[0], rotation[1], rotation[2]]}
               type="OBJ"
