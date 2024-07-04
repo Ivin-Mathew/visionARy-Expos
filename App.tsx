@@ -4,25 +4,35 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ViewAR from './components/ViewAR';
 import Home from './components/Home';
+import FileUploader from './components/Upload';
+import { FileProvider } from './components/FileContext';
 
 const Stack = createNativeStackNavigator();
 
 export default () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen
-          name="Home"
-          component={Home}
-          options={{title:''}}
-        />
-        <Stack.Screen
-          name="AR view"
-          component={ViewAR}
-          options={{title:'AR view'}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <FileProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen
+            name="Home"
+            component={Home}
+            options={{title:''}}
+          />
+          <Stack.Screen
+            name="AR view"
+            component={ViewAR}
+            options={{title:'AR view'}}
+          />
+          <Stack.Screen
+            name="Upload"
+            component={FileUploader}
+            options={{title:'Upload'}}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </FileProvider>
+    
   );
 };
 

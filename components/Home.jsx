@@ -44,7 +44,7 @@ const Home = ({navigation}) => {
             <View style={styles.container1}>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate('AR view')}
+                    onPress={() => navigation.navigate('Upload')}
                 >
                     <Text style={styles.buttonText}>Upload your model!</Text>
                 </TouchableOpacity>

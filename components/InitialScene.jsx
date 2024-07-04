@@ -7,91 +7,80 @@ import {
   ViroAmbientLight,
   ViroARTrackingTargets,
 } from '@reactvision/react-viro';
+import { useFile } from './FileContext';
 
-const ARScene = ({ setMarkerDetected, rotation, scale, setScale, isVisible }) => {
+const InitialScene = ({ clear }) => {
+  const { file, mtlFile, images, marker } = useFile();
+  const [isMarkerDetected, setIsMarkerDetected] = useState(false);
+  const [rotation, setRotation] = useState([-90, 0, 0]);
+  const [position, setPosition] = useState([0, 0, -5]);
+  const [scale, setScale] = useState([0.005, 0.005, 0.005]);
+  const [isVisible, setIsVisible] = useState(true);
+
   useEffect(() => {
-    ViroARTrackingTargets.createTargets({
-      skullImage: {
-        source: require('../assets/skull/Skull.jpg'),
-        orientation: 'Up',
-        physicalWidth: 0.165,
-      },
-      burj: {
-        source: require('../assets/marker.jpg'),
-        orientation: 'Up',
-        physicalWidth: 0.165,
-      },
-    });
-  }, []);
+    if (clear) {
+      setIsVisible(false);
+    }
+  }, [clear]);
+
+  useEffect(() => {
+    if (marker) {
+      ViroARTrackingTargets.createTargets({
+        markerTarget: {
+          source: { uri: marker.uri },
+          orientation: 'Up',
+          physicalWidth: 0.165,
+        },
+      });
+    }
+  }, [marker]);
 
   const anchorFound = () => {
-    console.log('Anchor found!');
-    setMarkerDetected(true);
+    setIsMarkerDetected(true);
+  };
+
+  const moveObject = (newPosition) => {
+    setPosition(newPosition);
+  };
+
+  const rotateObject = (rotateState, rotationFactor, source) => {
+    if (rotateState === 3) {
+      let newRotation = rotation.map((angle) => angle - rotationFactor);
+      setRotation(newRotation);
+    }
   };
 
   const scaleObject = (pinchState, scaleFactor, source) => {
     if (pinchState === 3) {
-      let newScale = scale.map(dim => dim * scaleFactor);
+      let newScale = scale.map((dim) => dim * scaleFactor);
       setScale(newScale);
     }
   };
 
   return (
     <ViroARScene>
-      {/* {isVisible && (
-        <ViroARImageMarker target="burj" onAnchorFound={anchorFound}>
+      {isVisible && marker && (
+        <ViroARImageMarker target="markerTarget" onAnchorFound={anchorFound}>
           <ViroAmbientLight color="#ffffff" />
-          <Viro3DObject
-            source={require('../assets/burj/burj.obj')}
-            resources={[require('../assets/burj/burj_khalifa.mtl')]}
-            scale={[scale[0], scale[1], scale[2]]}
-            rotation={[rotation[0], rotation[1], rotation[2]]}
-            type="OBJ"
-            onLoadStart={() => console.log('Loading 3D object...')}
-            onLoadEnd={() => console.log('3D object loaded.')}
-            onPinch={scaleObject}
-          />
+          {isMarkerDetected && file && mtlFile && (
+            <Viro3DObject
+              source={{ uri: file.uri }}
+              resources={[
+                { uri: mtlFile.uri },
+                ...images.map((img) => ({ uri: img.uri })),
+              ]}
+              scale={[scale[0], scale[1], scale[2]]}
+              rotation={[rotation[0], rotation[1], rotation[2]]}
+              type="OBJ"
+              onLoadStart={() => console.log('Loading 3D object...')}
+              onLoadEnd={() => console.log('3D object loaded.')}
+              onRotate={rotateObject}
+              onPinch={scaleObject}
+            />
+          )}
         </ViroARImageMarker>
-      )} */}
-
-      <ViroAmbientLight color="#ffffff" />
-      <Viro3DObject
-        source={require('../assets/burj/burj.obj')}
-        resources={[require('../assets/burj/burj_khalifa.mtl')]}
-        scale={[scale[0], scale[1], scale[2]]}
-        rotation={[rotation[0], rotation[1], rotation[2]]}
-        position={[0,0,-0.25]}
-        type="OBJ"
-        onLoadStart={() => console.log('Loading 3D object...')}
-        onLoadEnd={() => console.log('3D object loaded.')}
-        onPinch={scaleObject}
-      />
+      )}
     </ViroARScene>
-  );
-};
-
-const InitialScene = ({ clear, rotation, scale, setScale, isVisible, setMarkerDetected }) => {
-  const [isMarkerDetected, setIsMarkerDetected] = useState(false);
-  const [localIsVisible, setLocalIsVisible] = useState(true);
-
-  useEffect(() => {
-    if (clear) {
-      setLocalIsVisible(false);
-    }
-  }, [clear]);
-
-  useEffect(() => {
-    setMarkerDetected(isMarkerDetected);
-  }, [isMarkerDetected, setMarkerDetected]);
-
-  return (
-    <ARScene
-      setMarkerDetected={setIsMarkerDetected}
-      rotation={rotation}
-      scale={scale}
-      setScale={setScale}
-      isVisible={isVisible && localIsVisible}
-    />
   );
 };
 
