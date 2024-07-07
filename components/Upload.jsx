@@ -1,18 +1,26 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useFile } from './FileContext';
 
+
 const FileUploader = () => {
-  const { uploadFile, uploadMTLFile, uploadImages, uploadMarker } = useFile();
+  const { uploadFile, uploadMTLFile, uploadImages, uploadMarker, file, mtlFile, images, marker } = useFile();
 
   // State for storing uploaded file names
   const [uploadedObjName, setUploadedObjName] = useState('');
   const [uploadedMtlName, setUploadedMtlName] = useState('');
   const [uploadedImagesNames, setUploadedImagesNames] = useState('');
   const [uploadedMarkerName, setUploadedMarkerName] = useState('');
+
+  useEffect(() => {
+    if (file) {setUploadedObjName(file.name);}
+    if (mtlFile) {setUploadedMtlName(mtlFile.name);}
+    if (images && images.length > 0) {setUploadedImagesNames(images.map(img => img.name).join(', '));}
+    if (marker) {setUploadedMarkerName(marker.fileName || marker.name);} // Assuming marker object has fileName or name property
+  }, [file, mtlFile, images, marker]);
 
   const pickFile = async (fileType) => {
     try {
