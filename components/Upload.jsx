@@ -4,11 +4,10 @@ import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useFile } from './FileContext';
+import RNFS from 'react-native-fs';
 
 const FileUploader = () => {
   const { uploadFile, uploadMTLFile, uploadImages, uploadMarker, file, mtlFile, images, marker } = useFile();
-
-  // State for storing uploaded file names
   const [uploadedObjName, setUploadedObjName] = useState('');
   const [uploadedMtlName, setUploadedMtlName] = useState('');
   const [uploadedImagesNames, setUploadedImagesNames] = useState('');
@@ -18,8 +17,19 @@ const FileUploader = () => {
     if (file) { setUploadedObjName(file.name); }
     if (mtlFile) { setUploadedMtlName(mtlFile.name); }
     if (images && images.length > 0) { setUploadedImagesNames(images.map(img => img.name).join(', ')); }
-    if (marker) { setUploadedMarkerName(marker.fileName || marker.name); } // Assuming marker object has fileName or name property
+    if (marker) { setUploadedMarkerName(marker.fileName || marker.name); }
   }, [file, mtlFile, images, marker]);
+
+  const saveFile = async (uri, fileName) => {
+    try {
+      const path = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+      await RNFS.copyFile(uri, path);
+      return `file://${path}`;
+    } catch (error) {
+      console.error('Error saving file:', error);
+      return null;
+    }
+  };
 
   const pickFile = async (fileType) => {
     try {
@@ -29,6 +39,12 @@ const FileUploader = () => {
 
       const file = res[0];
       const fileExtension = file.name.split('.').pop().toLowerCase();
+      const filePath = await saveFile(file.uri, file.name);
+
+      if (!filePath) {
+        Alert.alert('Error', 'Failed to save the file');
+        return;
+      }
 
       switch (fileType) {
         case 'obj':
@@ -36,7 +52,7 @@ const FileUploader = () => {
             Alert.alert('Invalid File', 'Please upload a file with .obj extension');
             return;
           }
-          await uploadFile(file);
+          await uploadFile({ ...file, uri: filePath });
           setUploadedObjName(file.name);
           break;
 
@@ -45,7 +61,7 @@ const FileUploader = () => {
             Alert.alert('Invalid File', 'Please upload a file with .mtl extension');
             return;
           }
-          await uploadMTLFile(file);
+          await uploadMTLFile({ ...file, uri: filePath });
           setUploadedMtlName(file.name);
           break;
 
@@ -58,7 +74,8 @@ const FileUploader = () => {
             Alert.alert('Invalid Files', 'Please upload image files with jpg, jpeg, or png extensions');
             return;
           }
-          await uploadImages(images);
+          const savedImages = await Promise.all(images.map(img => saveFile(img.uri, img.name)));
+          await uploadImages(savedImages.map((uri, index) => ({ ...images[index], uri })));
           setUploadedImagesNames(images.map(img => img.name).join(', '));
           break;
 
@@ -114,7 +131,12 @@ const FileUploader = () => {
         } else {
           const { assets } = response;
           if (assets && assets.length > 0) {
-            await uploadMarker(assets[0]);
+            const filePath = await saveFile(assets[0].uri, assets[0].fileName);
+            if (!filePath) {
+              Alert.alert('Error', 'Failed to save the marker image');
+              return;
+            }
+            await uploadMarker({ ...assets[0], uri: filePath });
             setUploadedMarkerName(assets[0].fileName);
             Alert.alert('Success', 'Marker image uploaded successfully');
           }
@@ -136,7 +158,12 @@ const FileUploader = () => {
         } else {
           const { assets } = response;
           if (assets && assets.length > 0) {
-            await uploadMarker(assets[0]);
+            const filePath = await saveFile(assets[0].uri, assets[0].fileName);
+            if (!filePath) {
+              Alert.alert('Error', 'Failed to save the marker image');
+              return;
+            }
+            await uploadMarker({ ...assets[0], uri: filePath });
             setUploadedMarkerName(assets[0].fileName);
             Alert.alert('Success', 'Marker image uploaded successfully');
           }
