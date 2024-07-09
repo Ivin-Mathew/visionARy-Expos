@@ -5,7 +5,6 @@ import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useFile } from './FileContext';
 
-
 const FileUploader = () => {
   const { uploadFile, uploadMTLFile, uploadImages, uploadMarker, file, mtlFile, images, marker } = useFile();
 
@@ -16,10 +15,10 @@ const FileUploader = () => {
   const [uploadedMarkerName, setUploadedMarkerName] = useState('');
 
   useEffect(() => {
-    if (file) {setUploadedObjName(file.name);}
-    if (mtlFile) {setUploadedMtlName(mtlFile.name);}
-    if (images && images.length > 0) {setUploadedImagesNames(images.map(img => img.name).join(', '));}
-    if (marker) {setUploadedMarkerName(marker.fileName || marker.name);} // Assuming marker object has fileName or name property
+    if (file) { setUploadedObjName(file.name); }
+    if (mtlFile) { setUploadedMtlName(mtlFile.name); }
+    if (images && images.length > 0) { setUploadedImagesNames(images.map(img => img.name).join(', ')); }
+    if (marker) { setUploadedMarkerName(marker.fileName || marker.name); } // Assuming marker object has fileName or name property
   }, [file, mtlFile, images, marker]);
 
   const pickFile = async (fileType) => {
@@ -37,7 +36,7 @@ const FileUploader = () => {
             Alert.alert('Invalid File', 'Please upload a file with .obj extension');
             return;
           }
-          uploadFile(file);
+          await uploadFile(file);
           setUploadedObjName(file.name);
           break;
 
@@ -46,7 +45,7 @@ const FileUploader = () => {
             Alert.alert('Invalid File', 'Please upload a file with .mtl extension');
             return;
           }
-          uploadMTLFile(file);
+          await uploadMTLFile(file);
           setUploadedMtlName(file.name);
           break;
 
@@ -59,7 +58,7 @@ const FileUploader = () => {
             Alert.alert('Invalid Files', 'Please upload image files with jpg, jpeg, or png extensions');
             return;
           }
-          uploadImages(images);
+          await uploadImages(images);
           setUploadedImagesNames(images.map(img => img.name).join(', '));
           break;
 
@@ -107,7 +106,7 @@ const FileUploader = () => {
         mediaType: 'photo',
         saveToPhotos: true,
       },
-      (response) => {
+      async (response) => {
         if (response.didCancel) {
           Alert.alert('Cancelled', 'Image capture cancelled');
         } else if (response.errorCode) {
@@ -115,7 +114,7 @@ const FileUploader = () => {
         } else {
           const { assets } = response;
           if (assets && assets.length > 0) {
-            uploadMarker(assets[0]);
+            await uploadMarker(assets[0]);
             setUploadedMarkerName(assets[0].fileName);
             Alert.alert('Success', 'Marker image uploaded successfully');
           }
@@ -129,7 +128,7 @@ const FileUploader = () => {
       {
         mediaType: 'photo',
       },
-      (response) => {
+      async (response) => {
         if (response.didCancel) {
           Alert.alert('Cancelled', 'Image selection cancelled');
         } else if (response.errorCode) {
@@ -137,7 +136,7 @@ const FileUploader = () => {
         } else {
           const { assets } = response;
           if (assets && assets.length > 0) {
-            uploadMarker(assets[0]);
+            await uploadMarker(assets[0]);
             setUploadedMarkerName(assets[0].fileName);
             Alert.alert('Success', 'Marker image uploaded successfully');
           }
