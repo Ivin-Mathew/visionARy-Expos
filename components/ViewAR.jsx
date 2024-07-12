@@ -1,52 +1,42 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable react-native/no-inline-styles */
-import {ViroARSceneNavigator} from '@reactvision/react-viro';
-
 import React, { useState } from 'react';
-import {View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { ViroARSceneNavigator } from '@reactvision/react-viro';
+import Slider from '@react-native-community/slider';
 import InitialScene from './InitialScene';
 
-
-
 const ViewAR = () => {
-const [clear,setClear] = useState(false);
+  const [rotationY, setRotationY] = useState(0);
 
-const handleClearObjects = () =>{
-    setClear(true);
-};
-
-return (
+  return (
     <View style={styles.mainView}>
-    <ViroARSceneNavigator
-        initialScene={{
-        scene:InitialScene,
-        }}
-        style={{flex:1}}
-        autofocus={true}
-        viroAppProps={{ clear: clear }}
-    />
+      <ViroARSceneNavigator
+        initialScene={{ scene: InitialScene }}
+        style={{ flex: 1 }}
+        viroAppProps={{ rotationY }}
+      />
+      <Slider
+        style={styles.slider}
+        minimumValue={-360}
+        maximumValue={360}
+        value={rotationY}
+        onValueChange={(value) => setRotationY(value)}
+        step={1}
+      />
     </View>
-);
+  );
 };
 
-var styles = StyleSheet.create({
-mainView:{
-    flex:1,
-},
-controlsView:{
-    width:'100%',
-    height:100,
-    backgroundColor:'#ffffff',
-    display:'flex',
-    flexDirection:'row',
-    justifyContent:'space-between',
-},
-text:{
-    margin:20,
-    backgroundColor:'#9d9d9d',
-    padding:10,
-    fontWeight:'bold',
-},
+const styles = StyleSheet.create({
+  mainView: {
+    flex: 1,
+  },
+  slider: {
+    position: 'absolute',
+    bottom: 50,
+    left: 10,
+    right: 10,
+  },
 });
 
 export default ViewAR;
