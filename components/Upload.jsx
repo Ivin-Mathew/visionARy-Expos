@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from 'react';
-import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Alert, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useFile } from './FileContext';
@@ -174,57 +174,84 @@ const FileUploader = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Upload files</Text>
-      <TouchableOpacity style={styles.button} onPress={() => pickFile('obj')}>
-        <Text style={styles.text}>Upload .obj File</Text>
-      </TouchableOpacity>
-      {uploadedObjName && <Text style={styles.fileName}>{uploadedObjName}</Text>}
+      <ImageBackground source={require('../assets/uploadBG.jpg')} style={styles.backgroundImage}>
+        <View style={styles.container1}>
+          <Text style={styles.title}>Upload files</Text>
+          <TouchableOpacity style={styles.button} onPress={() => pickFile('obj')}>
+            <Text style={styles.text}>Upload .obj File</Text>
+          </TouchableOpacity>
+          {uploadedObjName && <Text style={styles.fileName}>Uploaded file: {uploadedObjName}</Text>}
 
-      <TouchableOpacity style={styles.button} onPress={() => pickFile('mtl')}>
-        <Text style={styles.text}>Upload .mtl File</Text>
-      </TouchableOpacity>
-      {uploadedMtlName && <Text style={styles.fileName}>{uploadedMtlName}</Text>}
+          <TouchableOpacity style={styles.button} onPress={() => pickFile('mtl')}>
+            <Text style={styles.text}>Upload .mtl File</Text>
+          </TouchableOpacity>
+          {uploadedMtlName && <Text style={styles.fileName}>Uploaded file: {uploadedMtlName}</Text>}
 
-      <TouchableOpacity style={styles.button} onPress={() => pickFile('images')}>
-        <Text style={styles.text}>Upload Images</Text>
-      </TouchableOpacity>
-      {uploadedImagesNames && <Text style={styles.fileName}>{uploadedImagesNames}</Text>}
+          <TouchableOpacity style={styles.button} onPress={() => pickFile('images')}>
+            <Text style={styles.text}>Upload Images</Text>
+          </TouchableOpacity>
+          {uploadedImagesNames && <Text style={styles.fileName}>Uploaded files: {uploadedImagesNames}</Text>}
 
-      <TouchableOpacity style={styles.button} onPress={pickMarkerImage}>
-        <Text style={styles.text}>Capture or Select Marker Image</Text>
-      </TouchableOpacity>
-      {uploadedMarkerName && <Text style={styles.fileName}>{uploadedMarkerName}</Text>}
+          <TouchableOpacity style={styles.button} onPress={pickMarkerImage}>
+            <Text style={styles.text}>Capture or Select Marker Image</Text>
+          </TouchableOpacity>
+          {uploadedMarkerName && <Text style={styles.fileName}>Uploaded image: {uploadedMarkerName}</Text>}
+        </View>
+      </ImageBackground>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    margin: 20,
+    flex:1,
     alignContent: 'space-around',
   },
+  container1: {
+    flex:1,
+    alignContent: 'space-around',
+    padding:20,
+  },
+  backgroundImage: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   button: {
-    marginBottom: 20,
+    marginBottom: 30,
     alignItems: 'center',
     backgroundColor: '#0079ff',
     padding: 10,
+    borderRadius:10,
+    borderColor:'#000000',
+    borderWidth:2,
   },
   text: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: 20,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 10,
   },
   title: {
-    color: '#000000',
     fontSize: 48,
-    alignSelf: 'center',
-    marginBottom: 40,
-    fontWeight: '200',
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+    fontFamily: 'Arial',
+    textAlign: 'center',
+    padding: 10,
+    paddingBottom:20 ,
+    borderRadius: 5,
   },
   fileName: {
-    color: '#000000',
-    fontSize: 14,
+    color: '#ffffff',
+    fontSize: 16,
     alignSelf: 'center',
-    marginBottom: 10,
+    marginBottom: 30,
+    marginTop:-20,
   },
 });
 
