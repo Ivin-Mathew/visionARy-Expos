@@ -11,27 +11,30 @@ import { useFile } from './FileContext';
 
 const InitialScene = (props) => {
   const { file, mtlFile, images, marker } = useFile();
-  const [isMarkerDetected, setIsMarkerDetected] = useState(false);
-  const [position, setPosition] = useState([0, 0, -5]);
-  const [isVisible, setIsVisible] = useState(true);
   const [fileUri, setFileUri] = useState(null);
   const [mtlFileUri, setMtlFileUri] = useState(null);
   const [imageUris, setImageUris] = useState([]);
+  const [isObjectLoaded, setIsObjectLoaded] = useState(false);
+
+  const rotationX = props.arSceneNavigator.viroAppProps.rotationX;
   const rotationY = props.arSceneNavigator.viroAppProps.rotationY;
   const scale = props.arSceneNavigator.viroAppProps.scale;
+  const isVisible = props.arSceneNavigator.viroAppProps.isVisible;
+  const isMarkerDetected = props.arSceneNavigator.viroAppProps.isMarkerDetected;
+  const anchorFound = props.arSceneNavigator.viroAppProps.anchorFound;
 
   useEffect(() => {
-    if (marker) {
+    if (marker && !isObjectLoaded) {
       ViroARTrackingTargets.createTargets({
         markerTarget: {
           source: { uri: marker.uri },
           orientation: 'Up',
-          physicalWidth: 0.2,
+          physicalWidth: 0.1,
         },
       });
       console.log('Marker target created with URI:', marker.uri);
     }
-  }, [marker]);
+  }, [marker, isObjectLoaded]);
 
   useEffect(() => {
     if (file) { setFileUri(file.uri); console.log('Resolved OBJ file URI:', file.uri); }
@@ -43,10 +46,6 @@ const InitialScene = (props) => {
     }
   }, [file, mtlFile, images]);
 
-  const anchorFound = () => {
-    setIsMarkerDetected(true);
-    console.log('Marker detected');
-  };
 
   useEffect(() => {
     console.log('Rotation Y:', rotationY);
@@ -58,7 +57,7 @@ const InitialScene = (props) => {
         {isVisible && marker && (
           <ViroARImageMarker target="markerTarget" onAnchorFound={anchorFound}>
             <ViroAmbientLight color="#ffffff" />
-            {isMarkerDetected && fileUri && mtlFileUri && (
+            {isMarkerDetected && fileUri && (
               <Viro3DObject
                 source={{ uri: fileUri }}
                 resources={[
@@ -66,7 +65,7 @@ const InitialScene = (props) => {
                   ...imageUris.map((uri) => ({ uri })),
                 ]}
                 scale={[scale, scale, scale]}
-                rotation={[-90, rotationY, 0]}
+                rotation={[rotationX , rotationY, 0]}
                 type="OBJ"
                 onLoadStart={() => console.log('Loading 3D object...')}
                 onLoadEnd={() => console.log('3D object loaded successfully.')}

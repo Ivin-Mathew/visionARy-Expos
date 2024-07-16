@@ -7,7 +7,7 @@ import { useFile } from './FileContext';
 import RNFS from 'react-native-fs';
 
 const FileUploader = () => {
-  const { uploadFile, uploadMTLFile, uploadImages, uploadMarker, file, mtlFile, images, marker } = useFile();
+  const { uploadFile, uploadMTLFile, uploadImages, uploadMarker, file, mtlFile, images, marker, removeFile, removeMTLFile, removeImages, removeMarker } = useFile();
   const [uploadedObjName, setUploadedObjName] = useState('');
   const [uploadedMtlName, setUploadedMtlName] = useState('');
   const [uploadedImagesNames, setUploadedImagesNames] = useState('');
@@ -65,19 +65,31 @@ const FileUploader = () => {
           setUploadedMtlName(file.name);
           break;
 
-        case 'images':
-          const images = res.filter((img) => {
-            const ext = img.name.split('.').pop().toLowerCase();
-            return ['jpg', 'jpeg', 'png'].includes(ext);
-          });
-          if (images.length === 0) {
-            Alert.alert('Invalid Files', 'Please upload image files with jpg, jpeg, or png extensions');
-            return;
-          }
-          const savedImages = await Promise.all(images.map(img => saveFile(img.uri, img.name)));
-          await uploadImages(savedImages.map((uri, index) => ({ ...images[index], uri })));
-          setUploadedImagesNames(images.map(img => img.name).join(', '));
-          break;
+          case 'images':
+            try {
+              const res = await DocumentPicker.pickMultiple({
+                type: [DocumentPicker.types.images],
+              });
+              const images = res.filter((img) => {
+                const ext = img.name.split('.').pop().toLowerCase();
+                return ['jpg', 'jpeg', 'png'].includes(ext);
+              });
+              if (images.length === 0) {
+                Alert.alert('Invalid Files', 'Please upload image files with jpg, jpeg, or png extensions');
+                return;
+              }
+              const savedImages = await Promise.all(images.map(img => saveFile(img.uri, img.name)));
+              await uploadImages(savedImages.map((uri, index) => ({ ...images[index], uri })));
+              setUploadedImagesNames(images.map(img => img.name).join(', '));
+            } catch (err) {
+              if (DocumentPicker.isCancel(err)) {
+                Alert.alert('No File Selected', 'File upload has been cancelled');
+              } else {
+                Alert.alert('Error', 'Failed to upload the file');
+                console.error(err);
+              }
+            }
+            break;
 
         default:
           Alert.alert('Invalid File Type', 'Unsupported file type');
@@ -95,6 +107,42 @@ const FileUploader = () => {
     }
   };
 
+  const selectImages = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        selectionLimit: 0, // Allow multiple selection
+      },
+      async (response) => {
+        if (response.didCancel) {
+          Alert.alert('Cancelled', 'Image selection cancelled');
+        } else if (response.errorCode) {
+          Alert.alert('Error', response.errorMessage);
+        } else {
+          const { assets } = response;
+          if (assets && assets.length > 0) {
+            const savedImages = [];
+            for (const asset of assets) {
+              const fileName = asset.fileName || asset.uri.split('/').pop();
+              console.log('Original file name:', fileName); // Log the original file name for debugging
+              const filePath = await saveFile(asset.uri, fileName);
+              if (!filePath) {
+                Alert.alert('Error', 'Failed to save the image');
+                return;
+              }
+              console.log('Saved file path:', filePath); // Log the saved file path for debugging
+              savedImages.push({ uri: filePath, name: fileName });
+            }
+            await uploadImages(savedImages);
+            setUploadedImagesNames(savedImages.map(img => img.name).join(', '));
+            Alert.alert('Success', 'Images uploaded successfully');
+          }
+        }
+      }
+    );
+  };
+
+
   const pickMarkerImage = () => {
     Alert.alert(
       'Select Image Source',
@@ -106,7 +154,7 @@ const FileUploader = () => {
         },
         {
           text: 'Select from Gallery',
-          onPress: () => selectImage(),
+          onPress: () => selectMarkerImage(),
         },
         {
           text: 'Cancel',
@@ -145,10 +193,11 @@ const FileUploader = () => {
     );
   };
 
-  const selectImage = () => {
+  const selectMarkerImage = () => {
     launchImageLibrary(
       {
         mediaType: 'photo',
+        selectionLimit: 1, // Limit selection to one image for marker
       },
       async (response) => {
         if (response.didCancel) {
@@ -172,6 +221,29 @@ const FileUploader = () => {
     );
   };
 
+  const removeUploadedFile = (fileType) => {
+    switch (fileType) {
+      case 'obj':
+        removeFile();
+        setUploadedObjName('');
+        break;
+      case 'mtl':
+        removeMTLFile();
+        setUploadedMtlName('');
+        break;
+      case 'images':
+        removeImages();
+        setUploadedImagesNames('');
+        break;
+      case 'marker':
+        removeMarker();
+        setUploadedMarkerName('');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground source={require('../assets/uploadBG.jpg')} style={styles.backgroundImage}>
@@ -180,22 +252,50 @@ const FileUploader = () => {
           <TouchableOpacity style={styles.button} onPress={() => pickFile('obj')}>
             <Text style={styles.text}>Upload .obj File</Text>
           </TouchableOpacity>
-          {uploadedObjName && <Text style={styles.fileName}>Uploaded file: {uploadedObjName}</Text>}
+          {uploadedObjName && (
+            <View style={styles.fileContainer}>
+              <Text style={styles.fileName}>Uploaded file: {uploadedObjName}</Text>
+              <TouchableOpacity onPress={() => removeUploadedFile('obj')}>
+                <Text style={styles.removeText}>X</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <TouchableOpacity style={styles.button} onPress={() => pickFile('mtl')}>
             <Text style={styles.text}>Upload .mtl File</Text>
           </TouchableOpacity>
-          {uploadedMtlName && <Text style={styles.fileName}>Uploaded file: {uploadedMtlName}</Text>}
+          {uploadedMtlName && (
+            <View style={styles.fileContainer}>
+              <Text style={styles.fileName}>Uploaded file: {uploadedMtlName}</Text>
+              <TouchableOpacity onPress={() => removeUploadedFile('mtl')}>
+                <Text style={styles.removeText}>X</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-          <TouchableOpacity style={styles.button} onPress={() => pickFile('images')}>
+          <TouchableOpacity style={styles.button} onPress={selectImages}>
             <Text style={styles.text}>Upload Images</Text>
           </TouchableOpacity>
-          {uploadedImagesNames && <Text style={styles.fileName}>Uploaded files: {uploadedImagesNames}</Text>}
+          {uploadedImagesNames && (
+            <View style={styles.fileContainer}>
+              <Text style={styles.fileName}>Uploaded files: {uploadedImagesNames}</Text>
+              <TouchableOpacity onPress={() => removeUploadedFile('images')}>
+                <Text style={styles.removeText}>X</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <TouchableOpacity style={styles.button} onPress={pickMarkerImage}>
             <Text style={styles.text}>Capture or Select Marker Image</Text>
           </TouchableOpacity>
-          {uploadedMarkerName && <Text style={styles.fileName}>Uploaded image: {uploadedMarkerName}</Text>}
+          {uploadedMarkerName && (
+            <View style={styles.fileContainer}>
+              <Text style={styles.fileName}>Uploaded image: {uploadedMarkerName}</Text>
+              <TouchableOpacity onPress={() => removeUploadedFile('marker')}>
+                <Text style={styles.removeText}>X</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ImageBackground>
     </View>
@@ -246,12 +346,22 @@ const styles = StyleSheet.create({
     paddingBottom:20 ,
     borderRadius: 5,
   },
+  fileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
   fileName: {
     color: '#ffffff',
     fontSize: 16,
     alignSelf: 'center',
-    marginBottom: 30,
-    marginTop:-20,
+    marginRight: 10,
+  },
+  removeText: {
+    color: '#ff0000',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

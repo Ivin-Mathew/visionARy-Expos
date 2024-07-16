@@ -8,28 +8,48 @@ export const useFile = () => useContext(FileContext);
 
 export const FileProvider = ({ children }) => {
   const [file, setFile] = useState(null);
-  const [mtlFile, setMTLFile] = useState(null);
+  const [mtlFile, setMtlFile] = useState(null);
   const [images, setImages] = useState([]);
   const [marker, setMarker] = useState(null);
 
-  const uploadFile = (newFile) => {
-    setFile(newFile);
+  const uploadFile = (uploadedFile) => {
+    setFile(uploadedFile);
   };
 
-  const uploadMTLFile = (newFile) => {
-    setMTLFile(newFile);
+  const uploadMTLFile = (uploadedMTLFile) => {
+    setMtlFile(uploadedMTLFile);
   };
 
-  const uploadImages = (newImages) => {
-    setImages(newImages);
+  const uploadImages = (uploadedImages) => {
+    setImages(uploadedImages);
   };
 
-  const uploadMarker = (newMarker) => {
-    setMarker(newMarker);
+  const uploadMarker = (uploadedMarker) => {
+    setMarker(uploadedMarker);
+  };
+  const removeFile = () => {
+    setFile(null);
+  };
+
+  const removeMTLFile = () => {
+    setMtlFile(null);
+  };
+
+  const removeImages = () => {
+    setImages([]);
+  };
+
+  const removeMarker = () => {
+    setMarker(null);
   };
 
   return (
-    <FileContext.Provider value={{ file, mtlFile, images, marker, uploadFile, uploadMTLFile, uploadImages, uploadMarker }}>
+    <FileContext.Provider value={{
+      file, uploadFile, removeFile,
+      mtlFile, uploadMTLFile, removeMTLFile,
+      images, uploadImages, removeImages,
+      marker, uploadMarker, removeMarker,
+    }}>
       {children}
     </FileContext.Provider>
   );
