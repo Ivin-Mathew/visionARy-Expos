@@ -49,6 +49,12 @@ const Home = ({navigation}) => {
                     >
                         <Text style={styles.buttonText}>Upload your model!</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => navigation.navigate('FAQ')}
+                    >
+                        <Text style={styles.buttonText}>FAQs</Text>
+                    </TouchableOpacity>
                 </View>
             </ImageBackground>
         </View>

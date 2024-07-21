@@ -58,7 +58,7 @@ const ViewAR = () => {
       <Slider
         style={styles.scaleSlider}
         minimumValue={-5} // Adjusted for exponential mapping
-        maximumValue={-1} // Adjusted for exponential mapping, corresponds to ~0.008
+        maximumValue={-0.5} // Adjusted for exponential mapping, corresponds to ~0.008
         value={Math.log10(scale)} // Convert current scale to linear slider value
         onValueChange={(linearValue) => setScale(convertToNonLinearScale(linearValue))}
         step={0.00001} // Adjust step for finer control

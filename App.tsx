@@ -6,6 +6,7 @@ import ViewAR from './components/ViewAR';
 import Home from './components/Home';
 import FileUploader from './components/Upload';
 import { FileProvider } from './components/FileContext';
+import FAQ from './components/FAQ';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,11 @@ export default () => {
             name="Upload"
             component={FileUploader}
             options={{title:'Upload'}}
+          />
+          <Stack.Screen
+            name="FAQ"
+            component={FAQ}
+            options={{title:'FAQ'}}
           />
         </Stack.Navigator>
       </NavigationContainer>
