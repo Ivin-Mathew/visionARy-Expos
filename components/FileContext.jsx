@@ -11,6 +11,7 @@ export const FileProvider = ({ children }) => {
   const [mtlFile, setMtlFile] = useState(null);
   const [images, setImages] = useState([]);
   const [marker, setMarker] = useState(null);
+  const [isDemo, setIsDemo] = useState(false);
 
   const uploadFile = (uploadedFile) => {
     setFile(uploadedFile);
@@ -42,6 +43,7 @@ export const FileProvider = ({ children }) => {
   const removeMarker = () => {
     setMarker(null);
   };
+  const setDemoMode = (value) => setIsDemo(value);
 
   return (
     <FileContext.Provider value={{
@@ -49,6 +51,7 @@ export const FileProvider = ({ children }) => {
       mtlFile, uploadMTLFile, removeMTLFile,
       images, uploadImages, removeImages,
       marker, uploadMarker, removeMarker,
+      isDemo, setDemoMode,
     }}>
       {children}
     </FileContext.Provider>

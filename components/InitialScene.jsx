@@ -22,6 +22,7 @@ const InitialScene = (props) => {
   const isVisible = props.arSceneNavigator.viroAppProps.isVisible;
   const isMarkerDetected = props.arSceneNavigator.viroAppProps.isMarkerDetected;
   const anchorFound = props.arSceneNavigator.viroAppProps.anchorFound;
+  const setMessage = props.arSceneNavigator.viroAppProps.setMessage; // Get the setMessage function from props
 
   useEffect(() => {
     if (marker && !isObjectLoaded) {
@@ -33,8 +34,9 @@ const InitialScene = (props) => {
         },
       });
       console.log('Marker target created with URI:', marker.uri);
+      setMessage('Searching for marker...'); // Set initial message
     }
-  }, [marker, isObjectLoaded]);
+  }, [marker, isObjectLoaded, setMessage]);
 
   useEffect(() => {
     if (file) { setFileUri(file.uri); console.log('Resolved OBJ file URI:', file.uri); }
@@ -46,35 +48,45 @@ const InitialScene = (props) => {
     }
   }, [file, mtlFile, images]);
 
-
   useEffect(() => {
     console.log('Rotation Y:', rotationY);
     console.log('Scale:', scale);
   }, [rotationY, scale]);
 
+  const handleAnchorFound = () => {
+    anchorFound();
+    setMessage('Loading model...'); // Clear message when marker is found
+  };
+
+  const handleLoadEnd = () => {
+    setIsObjectLoaded(true);
+    setMessage('Model loaded successfully!'); // Set message when model is loaded
+    console.log('3D object loaded successfully.');
+  };
+
   return (
-      <ViroARScene>
-        {isVisible && marker && (
-          <ViroARImageMarker target="markerTarget" onAnchorFound={anchorFound}>
-            <ViroAmbientLight color="#ffffff" />
-            {isMarkerDetected && fileUri && (
-              <Viro3DObject
-                source={{ uri: fileUri }}
-                resources={[
-                  { uri: mtlFileUri },
-                  ...imageUris.map((uri) => ({ uri })),
-                ]}
-                scale={[scale, scale, scale]}
-                rotation={[rotationX , rotationY, 0]}
-                type="OBJ"
-                onLoadStart={() => console.log('Loading 3D object...')}
-                onLoadEnd={() => console.log('3D object loaded successfully.')}
-                onError={(event) => console.log('Error loading 3D object:', event.nativeEvent)}
-              />
-            )}
-          </ViroARImageMarker>
-        )}
-      </ViroARScene>
+    <ViroARScene>
+      {isVisible && marker && (
+        <ViroARImageMarker target="markerTarget" onAnchorFound={handleAnchorFound}>
+          <ViroAmbientLight color="#ffffff" />
+          {isMarkerDetected && fileUri && (
+            <Viro3DObject
+              source={{ uri: fileUri }}
+              resources={[
+                { uri: mtlFileUri },
+                ...imageUris.map((uri) => ({ uri })),
+              ]}
+              scale={[scale, scale, scale]}
+              rotation={[rotationX, rotationY, 0]}
+              type="OBJ"
+              onLoadStart={() => console.log('Loading 3D object...')}
+              onLoadEnd={handleLoadEnd}
+              onError={(event) => console.log('Error loading 3D object:', event.nativeEvent)}
+            />
+          )}
+        </ViroARImageMarker>
+      )}
+    </ViroARScene>
   );
 };
 
